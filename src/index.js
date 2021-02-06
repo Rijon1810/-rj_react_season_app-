@@ -1,17 +1,49 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner'
+class App extends React.Component{
+     //initialization
+    state = { late : null , errorMessage : ''};
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+    componentDidMount(){
+        window.navigator.geolocation.getCurrentPosition(
+            position => this.setState({ lat: position.coords.latitude}),
+            err =>  this.setState({errorMessage: err.message })
+        );
+    }
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+    componentDidUpdate(){
+        console.log('My component was just updated - it rerendered');
+    }
+
+    
+    renderContent(){
+        //conditional rendering
+        if(this.state.errorMessage && !this.state.lat)
+        {
+            return  <div>Error : {this.state.errorMessage}</div>
+        }
+        else if(!this.state.errorMessage && this.state.lat){
+            return <SeasonDisplay lat={this.state.lat}/>
+        }
+        else{
+            return <Spinner message="Please accept location request!!!!"/>
+        }
+
+    }
+
+  //React says we have to define render !!!
+    render(){
+        return(
+            <div className="border red">
+                {this.renderContent()}
+            </div>
+
+        );
+        
+
+    }
+}
+
+ReactDOM.render(<App/>, document.querySelector('#root'));
